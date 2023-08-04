@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class TinkoffTTS implements TTSProvider {
-  convertTextToVoiceFile(data: TTSData): Promise<TTSVoiceFileData> {
+  convertTextToRawVoiceFile(data: TTSData): Promise<TTSVoiceFileData> {
     throw new Error('Method not implemented.');
   }
 }

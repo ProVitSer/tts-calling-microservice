@@ -19,7 +19,7 @@ export class YandexDataAdapter {
   constructor(text: string) {
     this.text = text;
     this.voice = YandexSpeechVoice.alena;
-    this.format = YandexSpeechFormat.mp3;
+    this.format = YandexSpeechFormat.lpcm;
     this.sampleRateHertz = YandexSpeechSampleRateHertz.Eight;
     this.lang = YandexSpeechLang.RU;
     this.emotion = YandexSpeechEmotion.good;

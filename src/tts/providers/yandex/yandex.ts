@@ -9,12 +9,14 @@ import { YandexSpeech } from './interfaces/interface';
 import { firstValueFrom, catchError } from 'rxjs';
 import * as uuid from 'uuid';
 import { FileUtilsService } from '@app/file-utils/file-utils';
+import { VoiceFileFormat } from '@app/tts/interfaces/tts.enum';
 
 @Injectable()
 export class YandexTTS implements TTSProvider {
   private readonly axios: AxiosInstance;
   private readonly iam: YandexIAMToken;
   private readonly voicePath: string;
+  private readonly format: VoiceFileFormat = VoiceFileFormat.raw;
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
@@ -32,7 +34,6 @@ export class YandexTTS implements TTSProvider {
 
         try {
           if (error.response.status === HttpStatus.UNAUTHORIZED) {
-            console.log(`Token expire: ${originalRequest.headers['Authorization']}  start refresh`);
             const iamToken = await this.iam.refreshIAMToken();
             originalRequest.headers['Authorization'] = `Bearer ${iamToken}`;
             return this.axios.request(originalRequest);
@@ -45,32 +46,33 @@ export class YandexTTS implements TTSProvider {
     );
   }
 
-  public async convertTextToVoiceFile(data: TTSData): Promise<TTSVoiceFileData> {
+  public async convertTextToRawVoiceFile(data: TTSData): Promise<TTSVoiceFileData> {
     try {
       const fileName = await this.getTTSFile(new YandexDataAdapter(data.text));
       return {
         id: data.id,
         fileName,
-        filePath: this.voicePath,
+        generatedFileName: fileName.slice(0, fileName.lastIndexOf('.')),
+        fullFilePath: FileUtilsService.getFullPath(this.voicePath),
+        format: this.format,
       };
     } catch (e) {
-      console.log(e);
+      throw e;
     }
   }
 
   private async getTTSFile(yandexDataAdapter: YandexDataAdapter): Promise<string> {
     try {
       const response = await this.send(yandexDataAdapter);
-      const fileName = `yandex-${uuid.v4()}.mp3`;
+      const fileName = `yandex-${uuid.v4()}.${this.format}`;
       await this.saveTTSFile(response, fileName);
-
       return fileName;
     } catch (e) {
-      console.log(e);
+      throw e;
     }
   }
 
-  private async saveTTSFile(response: AxiosResponse, voiceFile: string) {
+  private async saveTTSFile(response: AxiosResponse, voiceFile: string): Promise<boolean> {
     const writer = await FileUtilsService.writeStreamVoiceFile(voiceFile, this.voicePath);
     return new Promise((resolve, reject) => {
       response.data.pipe(writer);

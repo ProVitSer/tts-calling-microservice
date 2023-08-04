@@ -1,4 +1,4 @@
-import { TTSProviderType } from './tts.enum';
+import { TTSProviderType, VoiceFileFormat } from './tts.enum';
 
 export interface TTSData {
   id: string;
@@ -9,17 +9,20 @@ export interface TTSData {
 export interface TTSVoiceFileData {
   id: string;
   fileName: string;
-  filePath: string;
+  generatedFileName: string;
+  fullFilePath: string;
+  format: VoiceFileFormat;
 }
 
 export interface TTSProviderInterface {
   sendTextToTTS(data: TTSData): Promise<TTSVoiceFileData>;
   getProvider(ttsType: TTSProviderType): TTSProvider;
+  convertTTSVoiceFileToWav(data: TTSVoiceFileData): Promise<TTSVoiceFileData>;
   get provider(): TTSProviders;
 }
 
 export interface TTSProvider {
-  convertTextToVoiceFile(data: TTSData): Promise<TTSVoiceFileData>;
+  convertTextToRawVoiceFile(data: TTSData): Promise<TTSVoiceFileData>;
 }
 
 export type TTSProviders = {

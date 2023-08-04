@@ -1,6 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { exec } from 'child_process';
+import { ExecException, exec } from 'child_process';
 import { writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -16,11 +16,12 @@ export class YandexIAMToken implements OnModuleInit {
   public async refreshIAMToken(): Promise<string> {
     try {
       const token = await new Promise<string>(function (resolve, reject) {
-        exec('yc iam create-token', (error, stdout, stderr) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        exec('yc iam create-token', (error: ExecException, stdout, stderr: string) => {
           if (!!stdout) {
             resolve(stdout.replace(/\n/g, ''));
           }
-          reject();
+          reject(error);
         });
       });
       await this.saveToken(token);
