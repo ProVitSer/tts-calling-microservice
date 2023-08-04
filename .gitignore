@@ -399,3 +399,5 @@ dist
 .webpack
 .serverless/**/*.zip
 config.json
+public/voice/*
+token.json

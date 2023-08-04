@@ -4,7 +4,8 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": [
-      {"include": "../src/config/*.json", "outDir": "./dist/"}
+      {"include": "../src/config/*.json", "outDir": "./dist/"},
+      {"include": "../src/tts/providers/yandex/config/*.json", "outDir": "./dist/"}
     ]
   }
 }
