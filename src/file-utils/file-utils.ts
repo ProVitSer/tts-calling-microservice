@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { writeFile, readFile, unlink, readdir } from 'fs/promises';
 import { join } from 'path';
-import { access, constants, createReadStream, createWriteStream } from 'fs';
+import { access, constants, createWriteStream } from 'fs';
 
 @Injectable()
 export class FileUtilsService {
@@ -19,5 +18,9 @@ export class FileUtilsService {
 
   public static async writeStreamVoiceFile(fileName: string, filePath: string) {
     return createWriteStream(`${join(__dirname, '..', filePath)}${fileName}`);
+  }
+
+  public static getFullPath(filePath: string): string {
+    return join(__dirname, '..', filePath);
   }
 }
