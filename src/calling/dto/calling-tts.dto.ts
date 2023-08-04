@@ -1,4 +1,5 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { TTSProviderType } from '@app/tts/interfaces/tts.enum';
+import { IsArray, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CallingTTSDTO {
   @IsString()
@@ -12,4 +13,8 @@ export class CallingTTSDTO {
   @IsString()
   @IsNotEmpty()
   applicationId: string;
+
+  @IsNotEmpty()
+  @IsEnum(TTSProviderType)
+  ttsType: TTSProviderType;
 }
