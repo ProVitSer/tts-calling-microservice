@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
-import { access, constants, createWriteStream } from 'fs';
+import { access, constants, createWriteStream, createReadStream } from 'fs';
+import { Files } from './files.schema';
 
 @Injectable()
 export class FileUtilsService {
@@ -22,5 +23,13 @@ export class FileUtilsService {
 
   public static getFullPath(filePath: string): string {
     return join(__dirname, '..', filePath);
+  }
+
+  public static async readStreamVoiceFile(fullFilePath: string) {
+    return createReadStream(fullFilePath);
+  }
+
+  public static getFullFilePath(file: Files): string {
+    return `${file.fullFilePath}${file.fileName}`;
   }
 }
