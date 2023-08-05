@@ -19,9 +19,7 @@ export class AsteriskAriACallService implements OnApplicationBootstrap {
     }
   }
 
-  private async _sendAriCall(
-    originateInfo: AsteriskAriOriginate,
-  ): Promise<Channel> {
+  private async _sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
     const channel = this.getAriChannel();
     return await channel.originate({
       ...originateInfo,
