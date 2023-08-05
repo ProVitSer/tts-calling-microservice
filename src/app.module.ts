@@ -10,6 +10,7 @@ import { ScpModule } from './scp/scp.module';
 import { FilesModule } from './files/files.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { getMongoUseFactory } from './config/mongo.config';
+import { RabbitModule } from './rabbit/rabbit.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { getMongoUseFactory } from './config/mongo.config';
     TTSModule,
     ScpModule,
     FilesModule,
+    RabbitModule,
   ],
   controllers: [AppController],
   providers: [AppService],
