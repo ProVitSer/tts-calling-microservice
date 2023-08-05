@@ -4,16 +4,13 @@ import { BaseScpConnect, UploadData } from './scp.interface';
 
 @Injectable()
 export class ScpService {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  constructor() {}
   public async uploadFileToServer(uploadData: UploadData): Promise<void> {
     try {
       const client = await this.getClient(uploadData);
-      console.log(uploadData.uploadFilePath);
-      console.log(uploadData.serverFilePath);
-
-      return client.uploadFile(uploadData.uploadFilePath, uploadData.serverFilePath);
+      return await client.uploadFile(uploadData.uploadFilePath, uploadData.serverFilePath);
     } catch (e) {
-      console.log(e);
-
       throw e;
     }
   }
