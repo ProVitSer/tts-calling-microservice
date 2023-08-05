@@ -6,11 +6,13 @@ import { YandexTTS } from './providers/yandex/yandex';
 import { TinkoffTTS } from './providers/tinkoff/tinkoff';
 import { YandexIAMToken } from './providers/yandex/yandex-iam-token';
 import { HttpModule } from '@nestjs/axios';
+import { TTSController } from './tts.controller';
+import { FilesModule } from '@app/files/files.module';
 
 @Module({
-  imports: [ConfigModule, HttpModule],
+  imports: [ConfigModule, HttpModule, FilesModule],
   providers: [TTSProviderService, TTSService, YandexTTS, YandexIAMToken, TinkoffTTS],
   exports: [TTSService],
-  controllers: [],
+  controllers: [TTSController],
 })
 export class TTSModule {}

@@ -8,7 +8,7 @@ import { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { YandexSpeech } from './interfaces/interface';
 import { firstValueFrom, catchError } from 'rxjs';
 import * as uuid from 'uuid';
-import { FileUtilsService } from '@app/file-utils/file-utils';
+import { FileUtilsService } from '@app/files/files-utils';
 import { VoiceFileFormat } from '@app/tts/interfaces/tts.enum';
 
 @Injectable()
@@ -50,7 +50,6 @@ export class YandexTTS implements TTSProvider {
     try {
       const fileName = await this.getTTSFile(new YandexDataAdapter(data.text));
       return {
-        id: data.id,
         fileName,
         generatedFileName: fileName.slice(0, fileName.lastIndexOf('.')),
         fullFilePath: FileUtilsService.getFullPath(this.voicePath),

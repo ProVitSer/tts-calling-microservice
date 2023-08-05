@@ -36,12 +36,10 @@ export class TTSProviderService implements TTSProviderInterface {
     try {
       const fileName = `${data.generatedFileName}.${VoiceFileFormat.wav}`;
       const fullFileName = `${data.fullFilePath}${fileName}`;
-      const result = await new Promise((resolve, reject) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      await new Promise((resolve, reject) => {
         exec(
           `sox -r 8000 -b 16 -e signed-integer -c 1 ${data.fullFilePath}${data.fileName} ${fullFileName}`,
           (error: ExecException, stdout, stderr: string) => {
-            console.log('stdout', stdout);
             if (error || stderr) {
               reject(error);
             }
@@ -50,7 +48,6 @@ export class TTSProviderService implements TTSProviderInterface {
         );
       });
       return {
-        id: data.id,
         fileName,
         generatedFileName: data.generatedFileName,
         fullFilePath: data.fullFilePath,

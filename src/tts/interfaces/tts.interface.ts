@@ -1,13 +1,11 @@
 import { TTSProviderType, VoiceFileFormat } from './tts.enum';
 
 export interface TTSData {
-  id: string;
   ttsType: TTSProviderType;
   text: string;
 }
 
 export interface TTSVoiceFileData {
-  id: string;
   fileName: string;
   generatedFileName: string;
   fullFilePath: string;
@@ -28,3 +26,7 @@ export interface TTSProvider {
 export type TTSProviders = {
   [key in TTSProviderType]: TTSProvider;
 };
+
+export interface TTSFile {
+  fileId: string;
+}
