@@ -4,6 +4,7 @@ import { TTSProviderType, VoiceFileFormat } from './interfaces/tts.enum';
 import { YandexTTS } from './providers/yandex/yandex';
 import { TinkoffTTS } from './providers/tinkoff/tinkoff';
 import { ExecException, exec } from 'child_process';
+import { FileUtilsService } from '@app/files/files-utils';
 
 @Injectable()
 export class TTSProviderService implements TTSProviderInterface {
@@ -34,21 +35,9 @@ export class TTSProviderService implements TTSProviderInterface {
 
   public async convertTTSVoiceFileToWav(data: TTSVoiceFileData): Promise<TTSVoiceFileData> {
     try {
-      const fileName = `${data.generatedFileName}.${VoiceFileFormat.wav}`;
-      const fullFileName = `${data.fullFilePath}${fileName}`;
-      await new Promise((resolve, reject) => {
-        exec(
-          `sox -r 8000 -b 16 -e signed-integer -c 1 ${data.fullFilePath}${data.fileName} ${fullFileName}`,
-          (error: ExecException, stdout, stderr: string) => {
-            if (error || stderr) {
-              reject(error);
-            }
-            resolve(true);
-          },
-        );
-      });
+      const wavFileName = await this._convertTTSVoiceFileToWav(data);
       return {
-        fileName,
+        fileName: wavFileName,
         generatedFileName: data.generatedFileName,
         fullFilePath: data.fullFilePath,
         format: VoiceFileFormat.wav,
@@ -56,5 +45,22 @@ export class TTSProviderService implements TTSProviderInterface {
     } catch (e) {
       throw e;
     }
+  }
+
+  private async _convertTTSVoiceFileToWav(data: TTSVoiceFileData): Promise<string> {
+    const wavFileName = `${data.generatedFileName}.${VoiceFileFormat.wav}`;
+    const fullFileName = `${data.fullFilePath}${wavFileName}`;
+    await new Promise((resolve, reject) => {
+      exec(
+        `sox -r 8000 -b 16 -e signed-integer -c 1 ${FileUtilsService.getFullFilePath(data)} ${fullFileName}`,
+        (error: ExecException, stdout, stderr: string) => {
+          if (error || stderr) {
+            reject(error);
+          }
+          resolve(true);
+        },
+      );
+    });
+    return wavFileName;
   }
 }
