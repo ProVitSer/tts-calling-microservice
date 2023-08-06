@@ -14,10 +14,11 @@ export class CallingSubService {
   })
   public async pubSubHandler(msg: CallingPubSubInfo): Promise<void | Nack> {
     try {
+      await this.callingTaskService.checkTaskStatus(msg);
       await this.callingTaskService.sendCallToAsterisk(msg);
       await UtilsService.sleep(30000);
     } catch (e) {
-      return new Nack(true);
+      return;
     }
   }
 }

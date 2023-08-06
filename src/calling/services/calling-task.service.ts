@@ -19,6 +19,8 @@ import { ApplicationService } from '@app/application/application.service';
 import { ApplicationId } from '@app/application/interfaces/application.interface';
 import { CallingService } from './calling.service';
 import { CallingNumber } from '../calling.schema';
+import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
+import { TASK_STOP } from '../calling.consts';
 
 @Injectable()
 export class CallingTaskService {
@@ -49,6 +51,17 @@ export class CallingTaskService {
 
   public async sendCallToAsterisk(callInfo: CallingPubSubInfo) {
     await this.ast.sendAriCall(this.getOriginateInfo(callInfo));
+  }
+
+  public async checkTaskStatus(data: CallingPubSubInfo) {
+    try {
+      const callingTask = await this.callingService.getTaskByApplicationId(data.applicationId);
+      if (![ApplicationApiActionStatus.inProgress].includes(callingTask.status)) {
+        throw TASK_STOP;
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   private async saveAndUploadVoiceFile(data: CallingTTSData, ttsData: TTSVoiceFileData): Promise<Files & { _id: string }> {
