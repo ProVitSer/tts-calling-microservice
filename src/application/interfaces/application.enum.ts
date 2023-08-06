@@ -3,4 +3,5 @@ export enum ApplicationApiActionStatus {
   inProgress = 'inProgress',
   completed = 'completed',
   cancel = 'cancel',
+  stop = 'stop',
 }
