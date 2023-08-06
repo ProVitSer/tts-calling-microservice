@@ -2,10 +2,10 @@ import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Res } fr
 
 import { Response } from 'express';
 import { FileUtilsService } from '@app/files/files-utils';
-import { TTSDTO } from './dto/tts.dto';
-import { TTSService } from './tts.service';
-import { TTSFile } from './interfaces/tts.interface';
-import { CONVERT_FILE_ERROR } from './tts.consts';
+import { TTSDTO } from '../dto/tts.dto';
+import { TTSService } from '../services/tts.service';
+import { TTSFile } from '../interfaces/tts.interface';
+import { CONVERT_FILE_ERROR } from '../tts.consts';
 
 @Controller('tts')
 export class TTSController {

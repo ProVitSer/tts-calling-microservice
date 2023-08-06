@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { TTSData, TTSFile, TTSVoiceFileData } from './interfaces/tts.interface';
-import { TTSProviderService } from './tts.provider';
+import { TTSData, TTSFile, TTSVoiceFileData } from '../interfaces/tts.interface';
+import { TTSProviderService } from '../tts.provider';
 import { FilesService } from '@app/files/files.service';
 import { Files } from '@app/files/files.schema';
 import { FileUtilsService } from '@app/files/files-utils';
-import { TTS_FILE_NOT_FOUND } from './tts.consts';
+import { TTS_FILE_NOT_FOUND } from '../tts.consts';
 
 @Injectable()
 export class TTSService {
@@ -21,7 +21,7 @@ export class TTSService {
   public async convertTextToVoiceFile(data: TTSData): Promise<TTSFile> {
     try {
       const voiceFile = await this.ttsProvider.sendTextToTTS(data);
-      const file = await this.saveVoiceFileData(voiceFile);
+      const file = await this.saveVoiceFileData(voiceFile, data.text);
       return {
         fileId: file._id,
       };
@@ -45,7 +45,7 @@ export class TTSService {
     }
   }
 
-  private async saveVoiceFileData(ttsData: TTSVoiceFileData) {
-    return await this.filesService.saveFile({ ...ttsData });
+  private async saveVoiceFileData(ttsData: TTSVoiceFileData, text: string) {
+    return await this.filesService.saveFile({ ...ttsData, text });
   }
 }
