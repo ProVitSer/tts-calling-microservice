@@ -1,7 +1,6 @@
-import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
-
-export interface CallingTTSData extends CallingTTSTaskDTO {
+export interface CallingTTSData {
   applicationId: string;
+  phones: string[];
 }
 
 export interface CallingPubSubInfo {
@@ -15,4 +14,8 @@ export interface AddCallingTaskData {
   applicationId: string;
   fileId: string;
   numbers: string[];
+}
+
+export interface CallingSetStatusResult {
+  result: boolean;
 }

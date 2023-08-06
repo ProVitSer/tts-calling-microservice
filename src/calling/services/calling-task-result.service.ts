@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CallingService } from './calling.service';
 import { CallingResultDTO } from '../dto/calling-result.dto';
 import { Calling, CallingNumber } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
 import { UpdateWriteOpResult } from 'mongoose';
+import { TASK_NOT_FOUND } from '../calling.consts';
 
 @Injectable()
 export class CallingTaskResultService {
@@ -18,12 +19,23 @@ export class CallingTaskResultService {
     }
   }
 
-  private async updateTaskNumberResult(data: CallingResultDTO) {
+  public async getTaskResult(applicationId: string) {
     try {
-      const callingTask = await this.callingService.getTaskByApplicationId(data.applicationId);
-      if (callingTask == null) {
-        throw `Задача ${data.applicationId} отсутствует в базу`;
+      if (!(await this.callingService.isTaskExist(applicationId))) {
+        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
       }
+      return await this.callingService.getTaskByApplicationId(applicationId);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async updateTaskNumberResult(data: CallingResultDTO): Promise<UpdateWriteOpResult> {
+    try {
+      if (!(await this.callingService.isTaskExist(data.applicationId))) {
+        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+      }
+      const a = this.getUpdateNumberData(data);
       return await this.callingService.update(
         { applicationId: data.applicationId, 'numbers.dstNumber': data.dstNumber },
         this.getUpdateNumberData(data),
@@ -33,24 +45,27 @@ export class CallingTaskResultService {
     }
   }
 
-  private getUpdateNumberData(data: CallingResultDTO) {
+  // private getUpdateNumberData(data: CallingResultDTO): { [key in keyof Omit<CallingResultDTO, 'applicationId'>]?: string } {
+  private getUpdateNumberData(data: CallingResultDTO): { [key: string]: any } {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { applicationId, ...result } = data;
 
     // Убираем инфу о двуканальности
-    result.uniqueid.replace(/;2$/, '');
-    const updateObject = {};
+    result.uniqueid = result.uniqueid.replace(/;2$/, '');
+    const updateObject: { [key in keyof Omit<CallingResultDTO, 'applicationId'>]?: string } = {};
     const nestedObject = {};
     for (const key in result) {
       if (result.hasOwnProperty(key)) {
         nestedObject[key] = result[key];
       }
     }
+    nestedObject['callDate'] = new Date().toISOString();
     updateObject['numbers.$'] = nestedObject;
+
     return updateObject;
   }
 
-  private checkIsTaskCompleted(callingTask: Calling): Promise<void> {
+  private async checkIsTaskCompleted(callingTask: Calling): Promise<void> {
     let countWithoutStatus = 0;
     callingTask.numbers.forEach((n: CallingNumber) => {
       if (!n.hasOwnProperty('callerId')) {
@@ -58,16 +73,8 @@ export class CallingTaskResultService {
       }
     });
     if (countWithoutStatus == 0) {
-      this.setCompleted(callingTask.applicationId);
+      await this.callingService.update({ applicationId: callingTask.applicationId }, { status: ApplicationApiActionStatus.completed });
     }
     return;
-  }
-
-  private async setCompleted(applicationId: string): Promise<UpdateWriteOpResult> {
-    try {
-      return await this.callingService.update({ applicationId }, { status: ApplicationApiActionStatus.completed });
-    } catch (e) {
-      throw e;
-    }
   }
 }

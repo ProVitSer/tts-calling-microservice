@@ -52,6 +52,9 @@ export class CallingNumber {
 
   @Prop()
   fileId?: string;
+
+  @Prop()
+  callDate?: string;
 }
 
 const CallingSchema = SchemaFactory.createForClass(Calling);

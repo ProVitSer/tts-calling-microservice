@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
 import { TTSService } from '@app/tts/services/tts.service';
 import { TTSVoiceFileData } from '@app/tts/interfaces/tts.interface';
@@ -18,9 +18,9 @@ import { AsteriskContext, ChannelType } from '@app/asterisk/interfaces/asterisk.
 import { ApplicationService } from '@app/application/application.service';
 import { ApplicationId } from '@app/application/interfaces/application.interface';
 import { CallingService } from './calling.service';
-import { CallingNumber } from '../calling.schema';
+import { Calling, CallingNumber } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
-import { TASK_STOP } from '../calling.consts';
+import { NOT_CALLED_NUMBER_IN_TASK, TASK_IS_CANCEL, TASK_NOT_FOUND, TASK_STOP } from '../calling.consts';
 
 @Injectable()
 export class CallingTaskService {
@@ -39,8 +39,9 @@ export class CallingTaskService {
       const { applicationId } = ApplicationService.getApplicationId(true);
       const ttsData = await this.getTTSVoiceFile(data.ttsType, data.tts);
       const fileInfo = await this.saveAndUploadVoiceFile({ ...data, applicationId }, ttsData);
-      await this.addCallingTaskToQueue({ ...data, applicationId }, fileInfo);
       await this.addCallingTask({ applicationId, fileId: fileInfo._id, numbers: data.phones });
+      await this.addCallingTaskToQueue({ ...data, applicationId }, fileInfo);
+
       return {
         applicationId,
       };
@@ -64,8 +65,59 @@ export class CallingTaskService {
     }
   }
 
-  private async saveAndUploadVoiceFile(data: CallingTTSData, ttsData: TTSVoiceFileData): Promise<Files & { _id: string }> {
-    const fileInfo = await this.saveVoiceFileData(ttsData, data);
+  public async updateTaskStatus(applicationId: string, status: ApplicationApiActionStatus) {
+    try {
+      if (!(await this.callingService.isTaskExist(applicationId))) {
+        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+      }
+      if (await this.callingService.isTaskCancel(applicationId)) {
+        throw new HttpException(`${TASK_IS_CANCEL}`, HttpStatus.FORBIDDEN);
+      }
+
+      await this.callingService.update({ applicationId }, { status });
+      return;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async continueTask(applicationId: string) {
+    try {
+      if (!(await this.callingService.isTaskExist(applicationId))) {
+        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+      }
+
+      const task = await this.callingService.getTaskByApplicationId(applicationId);
+      if (task.status == ApplicationApiActionStatus.cancel) {
+        throw new HttpException(`${TASK_IS_CANCEL}`, HttpStatus.FORBIDDEN);
+      }
+
+      const file = await this.filesService.getFileById(task.fileId);
+      await this.callingService.update({ applicationId }, { status: ApplicationApiActionStatus.inProgress });
+
+      await this.addCallingTaskToQueue({ phones: this.getNotCalledNumbers(task), applicationId }, file);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private getNotCalledNumbers(task: Calling): string[] {
+    const notCalledNumber = task.numbers
+      .map((number: CallingNumber) => {
+        if (!number.hasOwnProperty('callerId')) {
+          return number.dstNumber;
+        }
+      })
+      .filter((n) => n !== undefined);
+    if (notCalledNumber.length == 0) throw NOT_CALLED_NUMBER_IN_TASK;
+    return notCalledNumber;
+  }
+
+  private async saveAndUploadVoiceFile(
+    data: CallingTTSTaskDTO & { applicationId: string },
+    ttsData: TTSVoiceFileData,
+  ): Promise<Files & { _id: string }> {
+    const fileInfo = await this.saveVoiceFileData(ttsData, data.applicationId, data.tts);
     await this.scp.uploadFileToServer(this.getScpConnectData(ttsData));
     return fileInfo;
   }
@@ -86,22 +138,21 @@ export class CallingTaskService {
 
   private async addCallingTaskToQueue(data: CallingTTSData, fileInfo: Files & { _id: string }): Promise<void> {
     try {
-      await Promise.all(
-        data.phones.map(async (phone: string) => {
-          await this._addCallingTaskToQueue({
-            applicationId: data.applicationId,
-            fileId: fileInfo._id,
-            phone,
-            playBackFile: fileInfo.generatedFileName,
-          });
-        }),
-      );
+      for (const phone of data.phones) {
+        await this._addCallingTaskToQueue({
+          applicationId: data.applicationId,
+          fileId: fileInfo._id.toString(),
+          phone,
+          playBackFile: fileInfo.generatedFileName,
+        });
+      }
     } catch (e) {
       throw e;
     }
   }
 
   private async _addCallingTaskToQueue(message: CallingPubSubInfo): Promise<void> {
+    console.log(message);
     await this.rabbitPubService.sendMessage(RabbitMqExchange.presence, RoutingKey.tts, message);
   }
 
@@ -128,11 +179,11 @@ export class CallingTaskService {
     };
   }
 
-  private async saveVoiceFileData(ttsData: TTSVoiceFileData, data: CallingTTSData): Promise<Files & { _id: string }> {
-    return await this.filesService.saveFile({ ...ttsData, text: data.tts, applicationId: data.applicationId });
+  private async saveVoiceFileData(ttsData: TTSVoiceFileData, applicationId: string, text: string): Promise<Files & { _id: string }> {
+    return await this.filesService.saveFile({ ...ttsData, text, applicationId });
   }
 
-  private async addCallingTask({ applicationId, fileId, numbers }: AddCallingTaskData) {
+  private async addCallingTask({ applicationId, fileId, numbers }: AddCallingTaskData): Promise<void> {
     try {
       await this.callingService.saveCallingTask({
         applicationId,
