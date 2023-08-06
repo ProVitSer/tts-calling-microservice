@@ -10,10 +10,6 @@ export class CallingTTSTaskDTO {
   @IsArray()
   phones: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  applicationId: string;
-
   @IsNotEmpty()
   @IsEnum(TTSProviderType)
   ttsType: TTSProviderType;
