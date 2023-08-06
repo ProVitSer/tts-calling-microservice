@@ -36,6 +36,9 @@ export class CallingTaskResultService {
   private getUpdateNumberData(data: CallingResultDTO) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { applicationId, ...result } = data;
+
+    // Убираем инфу о двуканальности
+    result.uniqueid.replace(/;2$/, '');
     const updateObject = {};
     const nestedObject = {};
     for (const key in result) {
