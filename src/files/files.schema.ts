@@ -18,6 +18,9 @@ export class Files {
   fullFilePath: string;
 
   @Prop()
+  text?: string;
+
+  @Prop()
   deleted?: boolean;
 
   @Prop({ type: Date, default: Date.now })
