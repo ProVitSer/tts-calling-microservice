@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
-import { AsteriskAriOriginate } from './asterisk.interface';
+import { AsteriskAriOriginate } from './interfaces/asterisk.interface';
 
 @Injectable()
 export class AsteriskAriACallService implements OnApplicationBootstrap {
@@ -15,7 +15,7 @@ export class AsteriskAriACallService implements OnApplicationBootstrap {
     try {
       return await this._sendAriCall(originateInfo);
     } catch (e) {
-      console.log(e);
+      throw e;
     }
   }
 
