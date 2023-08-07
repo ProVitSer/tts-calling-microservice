@@ -19,7 +19,6 @@ export class CallingService {
   }
 
   public async update(filter: { [key: string]: any }, data: { [key: string]: any }) {
-    console.log(data);
     return await this.callingModel.updateOne({ ...filter }, { $set: { ...data } });
   }
 

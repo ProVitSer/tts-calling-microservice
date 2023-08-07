@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
 import { access, constants, createWriteStream, createReadStream } from 'fs';
-import { Files } from './files.schema';
+import { Files } from '../files/files.schema';
 import { stat, chmod } from 'fs';
 import { promisify } from 'util';
 

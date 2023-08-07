@@ -152,7 +152,6 @@ export class CallingTaskService {
   }
 
   private async _addCallingTaskToQueue(message: CallingPubSubInfo): Promise<void> {
-    console.log(message);
     await this.rabbitPubService.sendMessage(RabbitMqExchange.presence, RoutingKey.tts, message);
   }
 

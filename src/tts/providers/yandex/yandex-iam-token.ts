@@ -32,16 +32,24 @@ export class YandexIAMToken implements OnModuleInit {
   }
 
   public async getIAMToken(): Promise<string> {
-    const token = JSON.parse(
-      (await readFile(`${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`)).toString(),
-    );
-    return token.iamToken;
+    try {
+      const token = JSON.parse(
+        (await readFile(`${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`)).toString(),
+      );
+      return token.iamToken;
+    } catch (e) {
+      throw e;
+    }
   }
 
   private async saveToken(token: string): Promise<void> {
-    await writeFile(
-      `${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`,
-      JSON.stringify({ iamToken: token }),
-    );
+    try {
+      await writeFile(
+        `${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`,
+        JSON.stringify({ iamToken: token }),
+      );
+    } catch (e) {
+      throw e;
+    }
   }
 }

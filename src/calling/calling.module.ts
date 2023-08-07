@@ -12,10 +12,12 @@ import { Calling, CallingSchema } from './calling.schema';
 import { CallingTaskService } from './services/calling-task.service';
 import { CallingService } from './services/calling.service';
 import { CallingTaskResultService } from './services/calling-task-result.service';
+import { LoggerModule } from '@app/logger/logger.module';
 
 @Module({
   imports: [
     ConfigModule,
+    LoggerModule,
     MongooseModule.forFeature([{ name: Calling.name, schema: CallingSchema }]),
     TTSModule,
     ScpModule,

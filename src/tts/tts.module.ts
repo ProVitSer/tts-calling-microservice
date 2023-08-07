@@ -8,9 +8,10 @@ import { YandexIAMToken } from './providers/yandex/yandex-iam-token';
 import { HttpModule } from '@nestjs/axios';
 import { TTSController } from './controllers/tts.controller';
 import { FilesModule } from '@app/files/files.module';
+import { LoggerModule } from '@app/logger/logger.module';
 
 @Module({
-  imports: [ConfigModule, HttpModule, FilesModule],
+  imports: [ConfigModule, LoggerModule, HttpModule, FilesModule],
   providers: [TTSProviderService, TTSService, YandexTTS, YandexIAMToken, TinkoffTTS],
   exports: [TTSService],
   controllers: [TTSController],

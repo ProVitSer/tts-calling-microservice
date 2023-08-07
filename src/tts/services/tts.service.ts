@@ -1,20 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { TTSData, TTSFile, TTSVoiceFileData } from '../interfaces/tts.interface';
 import { TTSProviderService } from '../tts.provider';
 import { FilesService } from '@app/files/files.service';
 import { Files } from '@app/files/files.schema';
-import { FileUtilsService } from '@app/files/files-utils';
-import { TTS_FILE_NOT_FOUND } from '../tts.consts';
+import { FileUtilsService } from '@app/utils/files-utils';
+import { CONVERT_FILE_ERROR, TTS_FILE_NOT_FOUND } from '../tts.consts';
+import { LoggerService } from '@app/logger/logger.service';
+import TTSFileNotFoundException from '../exceptions/tts-file-not-found.exception';
 
 @Injectable()
 export class TTSService {
-  constructor(private readonly ttsProvider: TTSProviderService, private readonly filesService: FilesService) {}
+  constructor(
+    private readonly ttsProvider: TTSProviderService,
+    private readonly logger: LoggerService,
+    private readonly filesService: FilesService,
+  ) {}
 
   public async textToSpech(data: TTSData): Promise<TTSVoiceFileData> {
     try {
       return await this.ttsProvider.sendTextToTTS(data);
     } catch (e) {
-      throw e;
+      this.logger.error(e);
+      throw new HttpException(CONVERT_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -26,7 +33,8 @@ export class TTSService {
         fileId: file._id,
       };
     } catch (e) {
-      throw e;
+      this.logger.error(e);
+      throw new HttpException(CONVERT_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -34,13 +42,14 @@ export class TTSService {
     try {
       const file = await this.filesService.getFileById(fileId);
       if (file == null) {
-        throw 'Файл с таким id отсутствует';
+        throw new TTSFileNotFoundException(fileId);
       }
       if (!(await FileUtilsService.exists(FileUtilsService.getFullFilePath(file)))) {
-        throw TTS_FILE_NOT_FOUND;
+        throw new TTSFileNotFoundException(fileId, TTS_FILE_NOT_FOUND);
       }
       return file;
     } catch (e) {
+      this.logger.error(e);
       throw e;
     }
   }

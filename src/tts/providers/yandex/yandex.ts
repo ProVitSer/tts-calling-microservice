@@ -8,7 +8,7 @@ import { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { YandexSpeech } from './interfaces/interface';
 import { firstValueFrom, catchError } from 'rxjs';
 import * as uuid from 'uuid';
-import { FileUtilsService } from '@app/files/files-utils';
+import { FileUtilsService } from '@app/utils/files-utils';
 import { VoiceFileFormat } from '@app/tts/interfaces/tts.enum';
 
 @Injectable()

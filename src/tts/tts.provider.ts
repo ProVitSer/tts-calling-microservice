@@ -4,7 +4,7 @@ import { TTSProviderType, VoiceFileFormat } from './interfaces/tts.enum';
 import { YandexTTS } from './providers/yandex/yandex';
 import { TinkoffTTS } from './providers/tinkoff/tinkoff';
 import { ExecException, exec } from 'child_process';
-import { FileUtilsService } from '@app/files/files-utils';
+import { FileUtilsService } from '@app/utils/files-utils';
 
 @Injectable()
 export class TTSProviderService implements TTSProviderInterface {
@@ -48,19 +48,23 @@ export class TTSProviderService implements TTSProviderInterface {
   }
 
   private async _convertTTSVoiceFileToWav(data: TTSVoiceFileData): Promise<string> {
-    const wavFileName = `${data.generatedFileName}.${VoiceFileFormat.wav}`;
-    const fullFileName = `${data.fullFilePath}${wavFileName}`;
-    await new Promise((resolve, reject) => {
-      exec(
-        `sox -r 8000 -b 16 -e signed-integer -c 1 ${FileUtilsService.getFullFilePath(data)} ${fullFileName}`,
-        (error: ExecException, stdout, stderr: string) => {
-          if (error || stderr) {
-            reject(error);
-          }
-          resolve(true);
-        },
-      );
-    });
-    return wavFileName;
+    try {
+      const wavFileName = `${data.generatedFileName}.${VoiceFileFormat.wav}`;
+      const fullFileName = `${data.fullFilePath}${wavFileName}`;
+      await new Promise((resolve, reject) => {
+        exec(
+          `sox -r 8000 -b 16 -e signed-integer -c 1 ${FileUtilsService.getFullFilePath(data)} ${fullFileName}`,
+          (error: ExecException, stdout, stderr: string) => {
+            if (error || stderr) {
+              reject(error);
+            }
+            resolve(true);
+          },
+        );
+      });
+      return wavFileName;
+    } catch (e) {
+      throw e;
+    }
   }
 }
