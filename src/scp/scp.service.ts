@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Client, ScpClient } from 'node-scp';
 import { BaseScpConnect, UploadData } from './scp.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ScpService {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {}
   public async uploadFileToServer(uploadData: UploadData): Promise<void> {
     try {
       const client = await this.getClient(uploadData);

@@ -15,7 +15,7 @@ export class CallingTaskResultService {
       await this.updateTaskNumberResult(data);
       return await this.checkIsTaskCompleted(await this.callingService.getTaskByApplicationId(data.applicationId));
     } catch (e) {
-      console.log(e);
+      throw e;
     }
   }
 
@@ -35,7 +35,6 @@ export class CallingTaskResultService {
       if (!(await this.callingService.isTaskExist(data.applicationId))) {
         throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
       }
-      const a = this.getUpdateNumberData(data);
       return await this.callingService.update(
         { applicationId: data.applicationId, 'numbers.dstNumber': data.dstNumber },
         this.getUpdateNumberData(data),
@@ -45,7 +44,6 @@ export class CallingTaskResultService {
     }
   }
 
-  // private getUpdateNumberData(data: CallingResultDTO): { [key in keyof Omit<CallingResultDTO, 'applicationId'>]?: string } {
   private getUpdateNumberData(data: CallingResultDTO): { [key: string]: any } {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { applicationId, ...result } = data;

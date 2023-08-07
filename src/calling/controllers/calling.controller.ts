@@ -2,27 +2,23 @@ import { Body, Controller, Param, Post, Res, Get } from '@nestjs/common';
 import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
 import { Response } from 'express';
 import { CallingResultDTO } from '../dto/calling-result.dto';
-import { CallingTaskService } from '../services/calling-task.service';
-import { CallingTaskResultService } from '../services/calling-task-result.service';
 import { CallingTasIdkDTO } from '../dto/calling-task-id.dto';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
+import { CallingTaskService } from '../services/calling-task.service';
 
 @Controller('calling')
 export class CallingController {
-  constructor(
-    private readonly callingTaskService: CallingTaskService,
-    private readonly callingTaskResultService: CallingTaskResultService,
-  ) {}
+  constructor(private readonly callingTaskService: CallingTaskService) {}
 
   @Post('task')
   async setCallingTask(@Body() body: CallingTTSTaskDTO) {
-    return await this.callingTaskService.setCallingTaskWithTTS(body);
+    return await this.callingTaskService.createCallingTask(body);
   }
 
   @Post('result')
   async result(@Body() body: CallingResultDTO, @Res() res: Response) {
     try {
-      this.callingTaskResultService.setResult(body);
+      this.callingTaskService.setCallingTaskResult(body);
       return res.sendStatus(200);
     } catch (e) {
       return res.sendStatus(200);
@@ -31,22 +27,25 @@ export class CallingController {
 
   @Get('applicationId/:id')
   async getTask(@Param('id') applicationId: string) {
-    return await this.callingTaskResultService.getTaskResult(applicationId);
+    return await this.callingTaskService.getCallingTaskResult(applicationId);
   }
 
   @Post('stop')
   async stopTask(@Body() { applicationId }: CallingTasIdkDTO) {
-    return await this.callingTaskService.updateTaskStatus(applicationId, ApplicationApiActionStatus.stop);
+    await this.callingTaskService.updateCallingTaskStatus(applicationId, ApplicationApiActionStatus.stop);
+    return { result: true };
   }
 
   @Post('cancel')
   async cancelTask(@Body() { applicationId }: CallingTasIdkDTO) {
-    return await this.callingTaskService.updateTaskStatus(applicationId, ApplicationApiActionStatus.cancel);
+    return await this.callingTaskService.updateCallingTaskStatus(applicationId, ApplicationApiActionStatus.cancel);
+    return { result: true };
   }
 
   @Post('continue')
   async continueTask(@Body() { applicationId }: CallingTasIdkDTO) {
-    return await this.callingTaskService.continueTask(applicationId);
+    return await this.callingTaskService.continueCallingTask(applicationId);
+    return { result: true };
   }
 
   // @Post('task/file')
