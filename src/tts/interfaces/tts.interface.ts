@@ -9,7 +9,7 @@ export interface TTSVoiceFileData {
   fileName: string;
   generatedFileName: string;
   fullFilePath: string;
-  format: VoiceFileFormat;
+  format?: VoiceFileFormat;
 }
 
 export interface TTSProviderInterface {

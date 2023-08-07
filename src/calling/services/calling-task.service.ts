@@ -6,10 +6,17 @@ import { ApplicationId } from '@app/application/interfaces/application.interface
 import { Calling } from '../calling.schema';
 import { CallingResultDTO } from '../dto/calling-result.dto';
 import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
-import { START_CALLING_TASK_ERROR, GET_CALLING_TASK_ERROR, UPDATE_FILE_ERROR, CONTINUE_FILE_ERROR } from '../calling.consts';
+import {
+  START_CALLING_TASK_ERROR,
+  GET_CALLING_TASK_ERROR,
+  UPDATE_FILE_ERROR,
+  CONTINUE_FILE_ERROR,
+  UPDATE_TTS_FILE_ERROR,
+} from '../calling.consts';
 import { CallingTaskCreateService } from './calling-task-create.service';
 import { CallingModifyTaskService } from './calling-task-modify.service';
 import { CallingTaskResultService } from './calling-task-result.service';
+import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
 
 @Injectable()
 export class CallingTaskService implements CallingTaskServiceInterface {
@@ -61,6 +68,15 @@ export class CallingTaskService implements CallingTaskServiceInterface {
     } catch (e) {
       this.logger.error(e);
       throw new HttpException(CONTINUE_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public async updateCallingTaskTTSVoiceFile(data: CallingTaskUpdateVoiceFileDTO): Promise<void> {
+    try {
+      return await this.callingModifyTaskService.updateTTSCallingFile(data);
+    } catch (e) {
+      this.logger.error(e);
+      throw new HttpException(UPDATE_TTS_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

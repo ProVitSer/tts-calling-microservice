@@ -7,3 +7,4 @@ export const START_CALLING_TASK_ERROR = 'Ошибка добавление за�
 export const GET_CALLING_TASK_ERROR = 'Ошибка получение статуса';
 export const UPDATE_FILE_ERROR = 'Ошибка обновление статуса';
 export const CONTINUE_FILE_ERROR = 'Ошибка возобновления обзвона';
+export const UPDATE_TTS_FILE_ERROR = 'Ошибка обновление голосового файла для обзвона';

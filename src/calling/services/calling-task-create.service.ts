@@ -9,7 +9,6 @@ import { Files } from '@app/files/files.schema';
 import { ScpService } from '@app/scp/scp.service';
 import { FilesService } from '@app/files/files.service';
 import { ConfigService } from '@nestjs/config';
-import { UploadData } from '@app/scp/scp.interface';
 import { CallingService } from './calling.service';
 import { CallingNumber } from '../calling.schema';
 import { AddCallingTaskData } from '../interfaces/calling.interface';
@@ -58,24 +57,16 @@ export class CallingTaskCreateService {
     ttsData: TTSVoiceFileData,
   ): Promise<Files & { _id: string }> {
     const fileInfo = await this.saveVoiceFileData(ttsData, data.applicationId, data.tts);
-    await this.scp.uploadFileToServer(this.getScpConnectData(ttsData));
+    await this.scp.uploadFileToServer({
+      ...this.scp.getAsteriskScpConnectData(),
+      uploadFilePath: `${ttsData.fullFilePath}${ttsData.fileName}`,
+      serverFilePath: `${this.configService.get('asterisk.ttsFilePath')}${ttsData.fileName}`,
+    });
     return fileInfo;
   }
 
   private async saveVoiceFileData(ttsData: TTSVoiceFileData, applicationId: string, text: string): Promise<Files & { _id: string }> {
     return await this.filesService.saveFile({ ...ttsData, text, applicationId });
-  }
-
-  private getScpConnectData(ttsData: TTSVoiceFileData): UploadData {
-    const { host, port, username, password } = this.configService.get('asterisk.ssh');
-    return {
-      host,
-      port,
-      username,
-      password,
-      uploadFilePath: `${ttsData.fullFilePath}${ttsData.fileName}`,
-      serverFilePath: `${this.configService.get('asterisk.ttsFilePath')}${ttsData.fileName}`,
-    };
   }
 
   private async addCallingTask({ applicationId, fileId, numbers }: AddCallingTaskData): Promise<void> {

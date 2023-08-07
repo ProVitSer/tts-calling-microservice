@@ -5,13 +5,18 @@ import { Calling, CallingNumber } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
 import { NOT_CALLED_NUMBER_IN_TASK, TASK_IS_CANCEL, TASK_NOT_FOUND } from '../calling.consts';
 import { CallingTaskPubService } from '../calling-mq/calling-task-pub.service';
+import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
+import { ScpService } from '@app/scp/scp.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CallingModifyTaskService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly callingTaskPubService: CallingTaskPubService,
     private readonly filesService: FilesService,
     private readonly callingService: CallingService,
+    private readonly scp: ScpService,
   ) {}
 
   public async updateTaskStatus(applicationId: string, status: ApplicationApiActionStatus) {
@@ -45,6 +50,20 @@ export class CallingModifyTaskService {
       await this.callingService.update({ applicationId }, { status: ApplicationApiActionStatus.inProgress });
 
       await this.callingTaskPubService.publishCallingTaskToQueue({ phones: this.getNotCalledNumbers(task), applicationId }, file);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async updateTTSCallingFile(data: CallingTaskUpdateVoiceFileDTO): Promise<void> {
+    try {
+      const file = await this.filesService.getFileById(data.fileId);
+      await this.scp.uploadFileToServer({
+        ...this.scp.getAsteriskScpConnectData(),
+        uploadFilePath: `${file.fullFilePath}${file.fileName}`,
+        serverFilePath: `${this.configService.get('asterisk.ttsFilePath')}${file.fileName}`,
+      });
+      await this.callingService.update({ applicationId: data.applicationId }, { fileId: file._id });
     } catch (e) {
       throw e;
     }

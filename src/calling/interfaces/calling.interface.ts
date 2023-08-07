@@ -3,6 +3,7 @@ import { CallingResultDTO } from '../dto/calling-result.dto';
 import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
 import { Calling } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
+import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
 
 export interface CallingTTSData {
   applicationId: string;
@@ -32,5 +33,5 @@ export interface CallingTaskServiceInterface {
   getCallingTaskResult(applicationId: string): Promise<Calling>;
   updateCallingTaskStatus(applicationId: string, status: ApplicationApiActionStatus): Promise<void>;
   continueCallingTask(applicationId: string): Promise<void>;
-  //updateCallingTaskTTSVoiceFile(applicationId: string, fileId: string): Promise<boolean>;
+  updateCallingTaskTTSVoiceFile(data: CallingTaskUpdateVoiceFileDTO): Promise<void>;
 }
