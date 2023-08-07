@@ -8,6 +8,7 @@ import { CallingTaskPubService } from '../calling-mq/calling-task-pub.service';
 import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
 import { ScpService } from '@app/scp/scp.service';
 import { ConfigService } from '@nestjs/config';
+import CallingTaskNotFoundException from '../exceptions/calling-task-not-found.exception';
 
 @Injectable()
 export class CallingModifyTaskService {
@@ -22,7 +23,7 @@ export class CallingModifyTaskService {
   public async updateTaskStatus(applicationId: string, status: ApplicationApiActionStatus) {
     try {
       if (!(await this.callingService.isTaskExist(applicationId))) {
-        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+        throw new CallingTaskNotFoundException(applicationId);
       }
       if (await this.callingService.isTaskCancel(applicationId)) {
         throw new HttpException(`${TASK_IS_CANCEL}`, HttpStatus.FORBIDDEN);
