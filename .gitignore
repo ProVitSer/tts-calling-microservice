@@ -401,3 +401,4 @@ dist
 config.json
 public/voice/*
 token.json
+api-log/*
