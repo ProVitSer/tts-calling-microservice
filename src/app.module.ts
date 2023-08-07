@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -11,10 +11,13 @@ import { FilesModule } from './files/files.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { getMongoUseFactory } from './config/mongo.config';
 import { RabbitModule } from './rabbit/rabbit.module';
+import { LoggerModule } from './logger/logger.module';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
+    LoggerModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: getMongoUseFactory,
@@ -31,4 +34,8 @@ import { RabbitModule } from './rabbit/rabbit.module';
   providers: [AppService],
   exports: [ConfigModule],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
