@@ -23,4 +23,14 @@ export class ScpService {
       password: data.password,
     });
   }
+
+  public getAsteriskScpConnectData(): BaseScpConnect {
+    const { host, port, username, password } = this.configService.get('asterisk.ssh');
+    return {
+      host,
+      port,
+      username,
+      password,
+    };
+  }
 }
