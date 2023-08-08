@@ -1,8 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 
 class CallingTaskNotFoundException extends NotFoundException {
-  constructor(fileId: string, description?: string) {
-    const message = description || `Файл с id ${fileId} отсутствует`;
+  constructor(applicationId: string, description?: string) {
+    const message = description || `Задача с id ${applicationId} отсутствует`;
+    console.log(applicationId);
     super(message);
   }
 }

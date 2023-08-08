@@ -44,9 +44,12 @@ export class TTSService {
       if (file == null) {
         throw new TTSFileNotFoundException(fileId);
       }
+
       if (!(await FileUtilsService.exists(FileUtilsService.getFullFilePath(file)))) {
         throw new TTSFileNotFoundException(fileId, TTS_FILE_NOT_FOUND);
       }
+      console.log(file);
+
       return file;
     } catch (e) {
       this.logger.error(e);

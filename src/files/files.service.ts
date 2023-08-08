@@ -19,10 +19,6 @@ export class FilesService {
   }
 
   public async getFileById(fileId: string): Promise<(Files & { _id: string }) | null> {
-    try {
-      return await this.filesModel.findById({ _id: fileId });
-    } catch (e) {
-      throw ID_ERROR;
-    }
+    return await this.filesModel.findById({ _id: fileId });
   }
 }

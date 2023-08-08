@@ -3,12 +3,14 @@ import { FilesService } from '@app/files/files.service';
 import { CallingService } from './calling.service';
 import { Calling, CallingNumber } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
-import { NOT_CALLED_NUMBER_IN_TASK, TASK_IS_CANCEL, TASK_NOT_FOUND } from '../calling.consts';
+import { NOT_CALLED_NUMBER_IN_TASK, TASK_IS_CANCEL, TASK_NEED_STOP } from '../calling.consts';
 import { CallingTaskPubService } from '../calling-mq/calling-task-pub.service';
 import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
 import { ScpService } from '@app/scp/scp.service';
 import { ConfigService } from '@nestjs/config';
 import CallingTaskNotFoundException from '../exceptions/calling-task-not-found.exception';
+import TTSFileNotFoundException from '@app/tts/exceptions/tts-file-not-found.exception';
+import { CurrentCallingTaskOperation } from '../interfaces/calling.enum';
 
 @Injectable()
 export class CallingModifyTaskService {
@@ -22,9 +24,8 @@ export class CallingModifyTaskService {
 
   public async updateTaskStatus(applicationId: string, status: ApplicationApiActionStatus) {
     try {
-      if (!(await this.callingService.isTaskExist(applicationId))) {
-        throw new CallingTaskNotFoundException(applicationId);
-      }
+      const task = await this.checkCallingTask(applicationId, CurrentCallingTaskOperation.updateStatus, status);
+
       if (await this.callingService.isTaskCancel(applicationId)) {
         throw new HttpException(`${TASK_IS_CANCEL}`, HttpStatus.FORBIDDEN);
       }
@@ -38,11 +39,8 @@ export class CallingModifyTaskService {
 
   public async continueTask(applicationId: string) {
     try {
-      if (!(await this.callingService.isTaskExist(applicationId))) {
-        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
-      }
+      const task = await this.checkCallingTask(applicationId, CurrentCallingTaskOperation.continue);
 
-      const task = await this.callingService.getTaskByApplicationId(applicationId);
       if (task.status == ApplicationApiActionStatus.cancel) {
         throw new HttpException(`${TASK_IS_CANCEL}`, HttpStatus.FORBIDDEN);
       }
@@ -58,7 +56,16 @@ export class CallingModifyTaskService {
 
   public async updateTTSCallingFile(data: CallingTaskUpdateVoiceFileDTO): Promise<void> {
     try {
+      const task = await this.checkCallingTask(data.applicationId, CurrentCallingTaskOperation.updateFile);
+      if (task.status !== ApplicationApiActionStatus.stop) {
+        throw new HttpException(`${TASK_NEED_STOP}`, HttpStatus.FORBIDDEN);
+      }
+
       const file = await this.filesService.getFileById(data.fileId);
+      if (file == null) {
+        throw new TTSFileNotFoundException(data.fileId);
+      }
+
       await this.scp.uploadFileToServer({
         ...this.scp.getAsteriskScpConnectData(),
         uploadFilePath: `${file.fullFilePath}${file.fileName}`,
@@ -67,6 +74,70 @@ export class CallingModifyTaskService {
       await this.callingService.update({ applicationId: data.applicationId }, { fileId: file._id });
     } catch (e) {
       throw e;
+    }
+  }
+
+  private async checkCallingTask(
+    applicationId: string,
+    cur: CurrentCallingTaskOperation,
+    status?: ApplicationApiActionStatus,
+  ): Promise<Calling> {
+    try {
+      const task = await this.callingService.getTaskByApplicationId(applicationId);
+      if (task == null) {
+        throw new CallingTaskNotFoundException(applicationId);
+      }
+      if (cur == CurrentCallingTaskOperation.updateStatus) {
+        this.checkByAppActStatus(task, status);
+      } else {
+        this.checkByCur(task, cur);
+      }
+      return task;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private checkByCur(task: Calling, cur: CurrentCallingTaskOperation) {
+    switch (cur) {
+      case CurrentCallingTaskOperation.continue:
+        if (task.status !== ApplicationApiActionStatus.stop) {
+          throw new HttpException(
+            `Нельзя продолжить выполнение задачи, которая находиться на статусе ${task.status}`,
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        break;
+      case CurrentCallingTaskOperation.updateFile:
+        if (task.status !== ApplicationApiActionStatus.stop) {
+          throw new HttpException(
+            `Нельзя обновить голосовой файл для задачи, которая находиться на статусе  ${task.status}`,
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        break;
+      default:
+        throw new HttpException(`Ошибка которой не должно быть на данной стадии`, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  private checkByAppActStatus(task: Calling, status: ApplicationApiActionStatus) {
+    switch (status) {
+      case ApplicationApiActionStatus.cancel:
+      case ApplicationApiActionStatus.stop:
+        if (
+          [
+            ApplicationApiActionStatus.apiFail,
+            ApplicationApiActionStatus.cancel,
+            ApplicationApiActionStatus.stop,
+            ApplicationApiActionStatus.completed,
+          ].includes(task.status)
+        ) {
+          throw new HttpException(`Задача находиться в статусе ${task.status} ее нельзя остановить или отменить`, HttpStatus.FORBIDDEN);
+        }
+        break;
+      default:
+        throw new HttpException(`Нельзя изменить статус задачи на статус ${status}`, HttpStatus.FORBIDDEN);
     }
   }
 

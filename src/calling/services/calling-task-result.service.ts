@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CallingService } from './calling.service';
 import { CallingResultDTO } from '../dto/calling-result.dto';
 import { Calling, CallingNumber } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
 import { UpdateWriteOpResult } from 'mongoose';
-import { TASK_NOT_FOUND } from '../calling.consts';
+import CallingTaskNotFoundException from '../exceptions/calling-task-not-found.exception';
 
 @Injectable()
 export class CallingTaskResultService {
@@ -22,7 +22,7 @@ export class CallingTaskResultService {
   public async getTaskResult(applicationId: string) {
     try {
       if (!(await this.callingService.isTaskExist(applicationId))) {
-        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+        throw new CallingTaskNotFoundException(applicationId);
       }
       return await this.callingService.getTaskByApplicationId(applicationId);
     } catch (e) {
@@ -33,7 +33,7 @@ export class CallingTaskResultService {
   private async updateTaskNumberResult(data: CallingResultDTO): Promise<UpdateWriteOpResult> {
     try {
       if (!(await this.callingService.isTaskExist(data.applicationId))) {
-        throw new HttpException(`${TASK_NOT_FOUND}`, HttpStatus.NOT_FOUND);
+        throw new CallingTaskNotFoundException(data.applicationId);
       }
       return await this.callingService.update(
         { applicationId: data.applicationId, 'numbers.dstNumber': data.dstNumber },

@@ -17,6 +17,7 @@ import { CallingTaskCreateService } from './calling-task-create.service';
 import { CallingModifyTaskService } from './calling-task-modify.service';
 import { CallingTaskResultService } from './calling-task-result.service';
 import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class CallingTaskService implements CallingTaskServiceInterface {
@@ -32,6 +33,7 @@ export class CallingTaskService implements CallingTaskServiceInterface {
       return await this.callingTaskCreateService.setCallingTaskWithTTS(data);
     } catch (e) {
       this.logger.error(e);
+      if (UtilsService.isHttpException(e)) throw e;
       throw new HttpException(START_CALLING_TASK_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -49,6 +51,7 @@ export class CallingTaskService implements CallingTaskServiceInterface {
       return await this.callingTaskResultService.getTaskResult(applicationId);
     } catch (e) {
       this.logger.error(e);
+      if (UtilsService.isHttpException(e)) throw e;
       throw new HttpException(GET_CALLING_TASK_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -58,6 +61,7 @@ export class CallingTaskService implements CallingTaskServiceInterface {
       return await this.callingModifyTaskService.updateTaskStatus(applicationId, status);
     } catch (e) {
       this.logger.error(e);
+      if (UtilsService.isHttpException(e)) throw e;
       throw new HttpException(UPDATE_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -67,6 +71,7 @@ export class CallingTaskService implements CallingTaskServiceInterface {
       return await this.callingModifyTaskService.continueTask(applicationId);
     } catch (e) {
       this.logger.error(e);
+      if (UtilsService.isHttpException(e)) throw e;
       throw new HttpException(CONTINUE_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -76,6 +81,7 @@ export class CallingTaskService implements CallingTaskServiceInterface {
       return await this.callingModifyTaskService.updateTTSCallingFile(data);
     } catch (e) {
       this.logger.error(e);
+      if (UtilsService.isHttpException(e)) throw e;
       throw new HttpException(UPDATE_TTS_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

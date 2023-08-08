@@ -1,6 +1,6 @@
 export enum TTSProviderType {
-  tinkoff = 'tinkoff',
   yandex = 'yandex',
+  tinkoff = 'tinkoff',
 }
 
 export enum VoiceFileFormat {

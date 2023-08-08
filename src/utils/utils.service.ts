@@ -1,4 +1,5 @@
-import { Injectable, ValidationError } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, ValidationError } from '@nestjs/common';
+import { Types } from 'mongoose';
 import * as uuid from 'uuid';
 
 @Injectable()
@@ -30,5 +31,9 @@ export class UtilsService {
     getChildren(error, error.property);
 
     return message;
+  }
+
+  public static isHttpException(obj: any): boolean {
+    return obj instanceof HttpException;
   }
 }

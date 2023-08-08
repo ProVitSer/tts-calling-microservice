@@ -4,6 +4,7 @@ import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
 import { Calling } from '../calling.schema';
 import { ApplicationApiActionStatus } from '@app/application/interfaces/application.enum';
 import { CallingTaskUpdateVoiceFileDTO } from '../dto/calling-task-update-voice-file.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export interface CallingTTSData {
   applicationId: string;
@@ -23,7 +24,8 @@ export interface AddCallingTaskData {
   numbers: string[];
 }
 
-export interface CallingSetStatusResult {
+export class CallingTaskModifyResult {
+  @ApiProperty({ type: 'boolean', description: 'Резульаь изменения задачи на обзвон', example: 'true' })
   result: boolean;
 }
 

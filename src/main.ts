@@ -6,6 +6,7 @@ import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nes
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { UtilsService } from './utils/utils.service';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const config = new ConfigService(configuration());
@@ -27,6 +28,10 @@ async function bootstrap() {
       },
     }),
   );
+  const swaggerConfig = new DocumentBuilder().setTitle('API tts calling').setVersion('1.0').build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api', app, document);
   app.useStaticAssets(join(__dirname, '..', 'public'));
   await app.listen(config.get('appPort'));
 }

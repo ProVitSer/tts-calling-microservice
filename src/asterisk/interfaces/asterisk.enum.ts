@@ -10,10 +10,10 @@ export enum AsteriskContext {
 }
 
 export enum AsteriskDialStatus {
+  ANSWER = 'ANSWER',
   CHANUNAVAIL = 'CHANUNAVAIL',
   CONGESTION = 'CONGESTION',
   NOANSWER = 'NOANSWER',
   BUSY = 'BUSY',
-  ANSWER = 'ANSWER',
   CANCEL = 'CANCEL',
 }
