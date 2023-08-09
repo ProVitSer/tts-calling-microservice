@@ -10,7 +10,7 @@ export class CallingTTSTaskDTO {
 
   @IsNotEmpty()
   @IsArray()
-  @ApiProperty({ type: [String], description: 'Текст который надо озвучить', example: ['74951234567', '79101234567'] })
+  @ApiProperty({ type: [String], description: 'Номера в формате E164', example: ['74951234567', '79101234567'] })
   phones: string[];
 
   @IsNotEmpty()
