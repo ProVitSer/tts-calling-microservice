@@ -23,20 +23,19 @@ export class YandexTTS implements TTSProvider {
     private readonly iamToken: YandexIAMToken,
   ) {
     this.voicePath = this.configService.get('voiceFileDir');
-    this.axios = this.httpService.axiosRef;
-    this.iam = this.iamToken;
+    const axios = this.httpService.axiosRef;
+    const iam = this.iamToken;
     this.httpService.axiosRef.interceptors.response.use(
       (response: AxiosResponse) => {
         return response;
       },
       async function (error: AxiosError) {
         const originalRequest = error.config;
-
         try {
           if (error.response.status === HttpStatus.UNAUTHORIZED) {
-            const iamToken = await this.iam.refreshIAMToken();
+            const iamToken = await iam.refreshIAMToken();
             originalRequest.headers['Authorization'] = `Bearer ${iamToken}`;
-            return this.axios.request(originalRequest);
+            return axios.request(originalRequest);
           }
         } catch (e) {
           return Promise.reject(error);
