@@ -3,6 +3,9 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "assets": [
+      {"include": "../src/config/*.json", "outDir": "./dist/"},
+      {"include": "../src/tts/providers/yandex/config/*.json", "outDir": "./dist/"}
+    ]
   }
 }
