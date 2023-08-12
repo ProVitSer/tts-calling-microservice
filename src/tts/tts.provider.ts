@@ -4,7 +4,7 @@ import { TTSProviderType, VoiceFileFormat } from './interfaces/tts.enum';
 import { YandexTTS } from './providers/yandex/yandex';
 import { TinkoffTTS } from './providers/tinkoff/tinkoff';
 import { ExecException, exec } from 'child_process';
-import { FileUtilsService } from '@app/utils/files-utils';
+import { FileUtilsService } from '@app/utils/files.utils';
 
 @Injectable()
 export class TTSProviderService implements TTSProviderInterface {
