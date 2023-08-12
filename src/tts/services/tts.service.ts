@@ -3,7 +3,7 @@ import { TTSData, TTSFile, TTSVoiceFileData } from '../interfaces/tts.interface'
 import { TTSProviderService } from '../tts.provider';
 import { FilesService } from '@app/files/files.service';
 import { Files } from '@app/files/files.schema';
-import { FileUtilsService } from '@app/utils/files-utils';
+import { FileUtilsService } from '@app/utils/files.utils';
 import { CONVERT_FILE_ERROR, TTS_FILE_NOT_FOUND } from '../tts.consts';
 import { LoggerService } from '@app/logger/logger.service';
 import TTSFileNotFoundException from '../exceptions/tts-file-not-found.exception';
@@ -48,7 +48,6 @@ export class TTSService {
       if (!(await FileUtilsService.exists(FileUtilsService.getFullFilePath(file)))) {
         throw new TTSFileNotFoundException(fileId, TTS_FILE_NOT_FOUND);
       }
-      console.log(file);
 
       return file;
     } catch (e) {

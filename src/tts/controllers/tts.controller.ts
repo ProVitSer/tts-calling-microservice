@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, Post, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import { FileUtilsService } from '@app/utils/files-utils';
+import { FileUtilsService } from '@app/utils/files.utils';
 import { TTSDTO } from '../dto/tts.dto';
 import { TTSService } from '../services/tts.service';
 import { ApiTags, ApiParam, ApiBody, ApiOperation, ApiOkResponse, ApiResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import { TTSFile } from '../interfaces/tts.interface';
-import { ParseObjectIdPipe } from '@app/utils/pipe';
+import { ParseObjectIdPipe } from '@app/pipe/parse-objectId.pipe';
 
 @ApiTags('tts')
 @Controller('tts')
