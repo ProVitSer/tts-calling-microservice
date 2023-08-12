@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { TinkoffGRPCClient } from '../grpc/tinkoff.grpc.client';
 import * as uuid from 'uuid';
 import { TinkoffStreamingTTSDataAdapter } from '../adapters/tinkoff.streaming.adapter';
-import { TTSProviderVoiceFileData } from '@app/tts/interfaces/tts.interface';
+import { ListVoicesData, TTSProviderVoiceFileData } from '@app/tts/interfaces/tts.interface';
 import { FileUtilsService } from '@app/utils/files.utils';
 import { VoiceFileFormat } from '@app/tts/interfaces/tts.enum';
 import { LoggerService } from '@app/logger/logger.service';
-import { StreamingSynthesizeSpeechResponse } from '../interfaces/tinkoff.interface';
+import { StreamingSynthesizeSpeechResponse, VoicesListData } from '../interfaces/tinkoff.interface';
+import { TinkoffSpeechLang } from '../interfaces/tinkoff.enum';
 
 @Injectable()
 export class TinkoffTTSService {
@@ -36,6 +37,56 @@ export class TinkoffTTSService {
     } catch (e) {
       throw e;
     }
+  }
+
+  public async getListVoices(): Promise<ListVoicesData[]> {
+    const ttsClient = this.getTTSClient();
+    const voicesList: VoicesListData = await new Promise((resolve, reject) => {
+      ttsClient.ListVoices({ language_code: TinkoffSpeechLang.RU }, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+    return this.formatListVoicesData(voicesList);
+  }
+
+  private formatListVoicesData(voicesList: VoicesListData): ListVoicesData[] {
+    this.firxVoiceListaData(voicesList);
+    const transformedArray: ListVoicesData[] = [];
+
+    voicesList.voices.forEach((voice) => {
+      const [name, emotion] = voice.name.split(':');
+
+      const existingVoice = transformedArray.find((item) => item.name === name);
+      if (existingVoice) {
+        if (emotion) {
+          existingVoice.emotions.push(emotion);
+        }
+      } else {
+        transformedArray.push({
+          name,
+          emotions: emotion ? [emotion] : [],
+        });
+      }
+    });
+    return transformedArray;
+  }
+
+  // Костыль
+  private firxVoiceListaData(originalObject: VoicesListData) {
+    // Удаление { name: 'flirt' }
+    originalObject.voices = originalObject.voices.filter((voice) => voice.name !== 'flirt');
+
+    // Замена { name: 'alyona' } на { name: 'alyona:neutral' }
+    originalObject.voices = originalObject.voices.map((voice) => {
+      if (voice.name === 'alyona') {
+        return { name: 'alyona:neutral' };
+      }
+      return voice;
+    });
   }
 
   private getTTSClient() {

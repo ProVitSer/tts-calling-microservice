@@ -1,5 +1,5 @@
 export enum TinkoffSpeechVoice {
-  alyona = 'alyona',
+  alyonaNeutral = 'alyona:neutral',
   alyonaSad = 'alyona:sad',
   alyonaFunny = 'alyona:funny',
   alyonaFlirt = 'alyona:flirt',

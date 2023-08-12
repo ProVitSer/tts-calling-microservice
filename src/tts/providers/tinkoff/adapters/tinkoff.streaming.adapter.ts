@@ -12,7 +12,7 @@ export class TinkoffStreamingTTSDataAdapter {
         sampleRateHertz: TinkoffSpeechSampleRateHertz.FortyEight,
       },
       voice: {
-        name: TinkoffSpeechVoice.alyonaFunny,
+        name: data?.voice ? (`${data.voice}:${data.emotion}` as TinkoffSpeechVoice) : TinkoffSpeechVoice.alyonaNeutral,
       },
     };
   }

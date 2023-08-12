@@ -1,12 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { TTSData, TTSFile, TTSConvertVoiceFileData } from '../interfaces/tts.interface';
+import { Injectable } from '@nestjs/common';
+import { TTSData, TTSFile, TTSConvertVoiceFileData, ListVoicesData } from '../interfaces/tts.interface';
 import { TTSProviderService } from '../tts.provider';
 import { FilesService } from '@app/files/files.service';
 import { Files } from '@app/files/files.schema';
 import { FileUtilsService } from '@app/utils/files.utils';
-import { CONVERT_FILE_ERROR, TTS_FILE_NOT_FOUND } from '../tts.consts';
+import { TTS_FILE_NOT_FOUND } from '../tts.consts';
 import { LoggerService } from '@app/logger/logger.service';
 import TTSFileNotFoundException from '../exceptions/tts-file-not-found.exception';
+import { TTSProviderType } from '../interfaces/tts.enum';
 
 @Injectable()
 export class TTSService {
@@ -20,8 +21,15 @@ export class TTSService {
     try {
       return await this.ttsProvider.sendTextToTTS(data);
     } catch (e) {
-      this.logger.error(e);
-      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw e;
+    }
+  }
+
+  public async getVoicesList(ttsType: TTSProviderType): Promise<ListVoicesData[]> {
+    try {
+      return await this.ttsProvider.getVoicesList(ttsType);
+    } catch (e) {
+      throw e;
     }
   }
 
@@ -33,8 +41,7 @@ export class TTSService {
         fileId: file._id,
       };
     } catch (e) {
-      this.logger.error(e);
-      throw new HttpException(CONVERT_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw e;
     }
   }
 

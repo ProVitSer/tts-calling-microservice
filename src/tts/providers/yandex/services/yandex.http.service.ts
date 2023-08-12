@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { YandexIAMTokenService } from './yandex.iam.token.service';
 import { HttpService } from '@nestjs/axios';
@@ -6,12 +6,14 @@ import { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { firstValueFrom, catchError } from 'rxjs';
 import { YandexSpeechDataAdapter } from '../adapters/yandex.adapter';
 import { YandexSpeech } from '../interfaces/yandex.interface';
+import { LoggerService } from '@app/logger/logger.service';
 
 @Injectable()
 export class YandexHttService {
   private readonly axios: AxiosInstance;
   private readonly iam: YandexIAMTokenService;
   constructor(
+    private readonly logger: LoggerService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly iamToken: YandexIAMTokenService,
@@ -51,7 +53,7 @@ export class YandexHttService {
     return await firstValueFrom(
       this.httpService.post(this.configService.get('yandex.ttsUrl'), queryString, await this.getHeader()).pipe(
         catchError((error: AxiosError) => {
-          throw error;
+          throw new HttpException(error.response.statusText, error.response.status);
         }),
       ),
     );

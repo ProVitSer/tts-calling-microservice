@@ -20,3 +20,7 @@ export interface StreamingSynthesizeSpeechRequest {
 export interface StreamingSynthesizeSpeechResponse {
   audioChunk: string;
 }
+
+export interface VoicesListData {
+  voices: { name: string }[];
+}

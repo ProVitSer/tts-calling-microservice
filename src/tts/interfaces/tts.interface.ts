@@ -4,6 +4,8 @@ import { TTSProviderType, VoiceFileFormat } from './tts.enum';
 export interface TTSData {
   ttsType: TTSProviderType;
   text: string;
+  voice?: string;
+  emotion?: string;
 }
 
 export interface TTSBaseVoiceFileData {
@@ -20,6 +22,13 @@ export interface TTSProviderVoiceFileData extends TTSBaseVoiceFileData {
   format: VoiceFileFormat.raw;
   sampleRateHertz: number;
 }
+export class ListVoicesData {
+  @ApiProperty({ type: 'string', description: 'Название голоса', example: 'alyona' })
+  name: string;
+
+  @ApiProperty({ type: [String], description: 'Задание амплуа', example: '["flirt","funny","sad"]' })
+  emotions: string[];
+}
 
 export interface TTSProviderInterface {
   sendTextToTTS(data: TTSData): Promise<TTSConvertVoiceFileData>;
@@ -30,6 +39,8 @@ export interface TTSProviderInterface {
 
 export interface TTSProvider {
   convertTextToRawVoiceFile(data: TTSData): Promise<TTSProviderVoiceFileData>;
+  checkVoiceEmotion(data: TTSData): Promise<void>;
+  voiceList(): Promise<ListVoicesData[]>;
 }
 
 export type TTSProviders = {

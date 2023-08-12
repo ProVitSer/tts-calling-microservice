@@ -19,11 +19,11 @@ export class YandexSpeechDataAdapter {
 
   constructor(data: TTSData) {
     this.text = data.text;
-    this.voice = YandexSpeechVoice.alena;
+    this.voice = (data.voice as YandexSpeechVoice) || YandexSpeechVoice.alena;
     this.format = YandexSpeechFormat.lpcm;
     this.sampleRateHertz = YandexSpeechSampleRateHertz.FortyEight;
     this.lang = YandexSpeechLang.RU;
-    this.emotion = YandexSpeechEmotion.good;
+    this.emotion = (data.emotion as YandexSpeechEmotion) || YandexSpeechEmotion.good;
     this.speed = YandexSpeechSpeed.middle;
   }
 }
