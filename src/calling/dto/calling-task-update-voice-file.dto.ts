@@ -1,6 +1,6 @@
-import { IsValidObjectId } from '@app/utils/objectId.validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { IsValidObjectId } from '../validator/objectId.validator';
 
 export class CallingTaskUpdateVoiceFileDTO {
   @IsString()
