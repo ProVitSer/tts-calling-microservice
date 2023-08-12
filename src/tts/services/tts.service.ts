@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { TTSData, TTSFile, TTSVoiceFileData } from '../interfaces/tts.interface';
+import { TTSData, TTSFile, TTSConvertVoiceFileData } from '../interfaces/tts.interface';
 import { TTSProviderService } from '../tts.provider';
 import { FilesService } from '@app/files/files.service';
 import { Files } from '@app/files/files.schema';
@@ -16,12 +16,12 @@ export class TTSService {
     private readonly filesService: FilesService,
   ) {}
 
-  public async textToSpech(data: TTSData): Promise<TTSVoiceFileData> {
+  public async textToSpech(data: TTSData): Promise<TTSConvertVoiceFileData> {
     try {
       return await this.ttsProvider.sendTextToTTS(data);
     } catch (e) {
       this.logger.error(e);
-      throw new HttpException(CONVERT_FILE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -56,7 +56,7 @@ export class TTSService {
     }
   }
 
-  private async saveVoiceFileData(ttsData: TTSVoiceFileData, text: string) {
+  private async saveVoiceFileData(ttsData: TTSConvertVoiceFileData, text: string) {
     return await this.filesService.saveFile({ ...ttsData, text });
   }
 }

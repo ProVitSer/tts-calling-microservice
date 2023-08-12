@@ -6,22 +6,30 @@ export interface TTSData {
   text: string;
 }
 
-export interface TTSVoiceFileData {
+export interface TTSBaseVoiceFileData {
   fileName: string;
   generatedFileName: string;
   fullFilePath: string;
-  format?: VoiceFileFormat;
+}
+
+export interface TTSConvertVoiceFileData extends TTSBaseVoiceFileData {
+  format: VoiceFileFormat.wav;
+}
+
+export interface TTSProviderVoiceFileData extends TTSBaseVoiceFileData {
+  format: VoiceFileFormat.raw;
+  sampleRateHertz: number;
 }
 
 export interface TTSProviderInterface {
-  sendTextToTTS(data: TTSData): Promise<TTSVoiceFileData>;
+  sendTextToTTS(data: TTSData): Promise<TTSConvertVoiceFileData>;
   getProvider(ttsType: TTSProviderType): TTSProvider;
-  convertTTSVoiceFileToWav(data: TTSVoiceFileData): Promise<TTSVoiceFileData>;
+  convertTTSVoiceFileToWav(ttsType: TTSProviderType, data: TTSProviderVoiceFileData): Promise<TTSConvertVoiceFileData>;
   get provider(): TTSProviders;
 }
 
 export interface TTSProvider {
-  convertTextToRawVoiceFile(data: TTSData): Promise<TTSVoiceFileData>;
+  convertTextToRawVoiceFile(data: TTSData): Promise<TTSProviderVoiceFileData>;
 }
 
 export type TTSProviders = {
