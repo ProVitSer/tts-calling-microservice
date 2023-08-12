@@ -1,3 +1,4 @@
+import { TTSData } from '@app/tts/interfaces/tts.interface';
 import {
   YandexSpeechEmotion,
   YandexSpeechFormat,
@@ -5,9 +6,9 @@ import {
   YandexSpeechSampleRateHertz,
   YandexSpeechSpeed,
   YandexSpeechVoice,
-} from './interfaces/types';
+} from '../interfaces/yandex.enum';
 
-export class YandexDataAdapter {
+export class YandexSpeechDataAdapter {
   voice: YandexSpeechVoice;
   text: string;
   format: YandexSpeechFormat;
@@ -16,13 +17,13 @@ export class YandexDataAdapter {
   emotion: YandexSpeechEmotion;
   speed: YandexSpeechSpeed;
 
-  constructor(text: string) {
-    this.text = text;
-    this.voice = YandexSpeechVoice.alena;
+  constructor(data: TTSData) {
+    this.text = data.text;
+    this.voice = (data.voice as YandexSpeechVoice) || YandexSpeechVoice.alena;
     this.format = YandexSpeechFormat.lpcm;
-    this.sampleRateHertz = YandexSpeechSampleRateHertz.Eight;
+    this.sampleRateHertz = YandexSpeechSampleRateHertz.FortyEight;
     this.lang = YandexSpeechLang.RU;
-    this.emotion = YandexSpeechEmotion.good;
+    this.emotion = (data.emotion as YandexSpeechEmotion) || YandexSpeechEmotion.good;
     this.speed = YandexSpeechSpeed.middle;
   }
 }
