@@ -6,7 +6,9 @@
     "assets": [
       "**/*.proto",
       {"include": "../src/config/*.json", "outDir": "./dist/"},
-      {"include": "../src/tts/providers/yandex/config/*.json", "outDir": "./dist/"}
+      {"include": "../src/tts/providers/yandex/config/*.json", "outDir": "./dist/"},
+      {"include": "../src/tts/providers/sber/config/*.json", "outDir": "./dist/"}
+
     ]
   }
 }
