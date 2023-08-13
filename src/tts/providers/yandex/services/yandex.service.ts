@@ -12,12 +12,7 @@ import { VoiceFileFormat } from '@app/tts/interfaces/tts.enum';
 @Injectable()
 export class YandexService {
   private readonly voicePath: string;
-  private readonly fileName: string = `yandex-${uuid.v4()}.raw`;
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly logger: LoggerService,
-    private readonly yandexHttService: YandexHttService,
-  ) {
+  constructor(private readonly configService: ConfigService, private readonly yandexHttService: YandexHttService) {
     this.voicePath = this.configService.get('voiceFileDir');
   }
 
@@ -48,6 +43,7 @@ export class YandexService {
   }
 
   private async writeStreamVoiceFile(response: AxiosResponse, fileName: string): Promise<boolean> {
+    console.log(response);
     const writer = await FileUtilsService.writeStreamVoiceFile(fileName, this.voicePath);
     return new Promise((resolve, reject) => {
       response.data.pipe(writer);

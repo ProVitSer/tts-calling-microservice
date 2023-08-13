@@ -28,13 +28,14 @@ export class TTSConvertService {
         exec(
           `sox -r ${data.sampleRateHertz} -b 16 -e signed-integer -c 1 ${FileUtilsService.getFullFilePath(data)} ${fullFileName}`,
           (error: ExecException, stdout, stderr: string) => {
-            if (error || stderr) {
+            if (error) {
               reject(error);
             }
             resolve(true);
           },
         );
       });
+
       return wavFileName;
     } catch (e) {
       throw e;

@@ -21,10 +21,10 @@ export class TinkoffTTSService {
     this.voicePath = this.configService.get('voiceFileDir');
   }
 
-  public async streamingSynthesize(dataAdapte: TinkoffStreamingTTSDataAdapter): Promise<TTSProviderVoiceFileData> {
+  public async streamingSynthesize(dataAdapter: TinkoffStreamingTTSDataAdapter): Promise<TTSProviderVoiceFileData> {
     try {
       const ttsClient = this.getTTSClient();
-      const ttsStreamingCall = ttsClient.StreamingSynthesize({ ...dataAdapte.streamingData });
+      const ttsStreamingCall = ttsClient.StreamingSynthesize({ ...dataAdapter.streamingData });
       const fileName = `tinkoff-${uuid.v4()}.${VoiceFileFormat.raw}`;
       await this.writeStreamVoiceFile(ttsStreamingCall, ttsClient, fileName);
       return {
@@ -32,7 +32,7 @@ export class TinkoffTTSService {
         generatedFileName: fileName.slice(0, fileName.lastIndexOf('.')),
         fullFilePath: FileUtilsService.getFullPath(this.voicePath),
         format: VoiceFileFormat.raw,
-        sampleRateHertz: dataAdapte.streamingData.audioConfig.sampleRateHertz,
+        sampleRateHertz: dataAdapter.streamingData.audioConfig.sampleRateHertz,
       };
     } catch (e) {
       throw e;
