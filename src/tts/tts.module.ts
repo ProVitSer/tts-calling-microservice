@@ -8,9 +8,10 @@ import { LoggerModule } from '@app/logger/logger.module';
 import { TinkoffModule } from './providers/tinkoff/tinkoff.module';
 import { YandexModule } from './providers/yandex/yandex.module';
 import { TTSConvertService } from './services/tts.convert.service';
+import { SberModule } from './providers/sber/sber.module';
 
 @Module({
-  imports: [ConfigModule, LoggerModule, FilesModule, TinkoffModule, YandexModule],
+  imports: [ConfigModule, LoggerModule, FilesModule, TinkoffModule, YandexModule, SberModule],
   providers: [TTSProviderService, TTSService, TTSConvertService],
   exports: [TTSService],
   controllers: [TTSController],

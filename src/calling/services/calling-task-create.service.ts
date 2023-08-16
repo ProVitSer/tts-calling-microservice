@@ -28,7 +28,7 @@ export class CallingTaskCreateService {
   public async setCallingTaskWithTTS(data: CallingTTSTaskDTO): Promise<ApplicationId> {
     try {
       const { applicationId } = ApplicationService.getApplicationId(true);
-      const ttsData = await this.getTTSVoiceFile(data.ttsType, data.tts);
+      const ttsData = await this.getTTSVoiceFile(data);
       const fileInfo = await this.saveAndUploadVoiceFile({ ...data, applicationId }, ttsData);
       await this.addCallingTask({ applicationId, fileId: fileInfo._id, numbers: data.phones });
       await this.callingTaskPubService.publishCallingTaskToQueue({ ...data, applicationId }, fileInfo);
@@ -41,11 +41,13 @@ export class CallingTaskCreateService {
     }
   }
 
-  private async getTTSVoiceFile(ttsType: TTSProviderType, text: string): Promise<TTSConvertVoiceFileData> {
+  private async getTTSVoiceFile(data: CallingTTSTaskDTO): Promise<TTSConvertVoiceFileData> {
     try {
       return await this.ttsService.textToSpech({
-        ttsType,
-        text,
+        ttsType: data.ttsType,
+        text: data.tts,
+        voice: data.voice,
+        emotion: data.emotion,
       });
     } catch (e) {
       throw e;
