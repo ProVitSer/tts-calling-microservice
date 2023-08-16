@@ -5,7 +5,7 @@ import {
   YandexSpeechSampleRateHertz,
   YandexSpeechSpeed,
   YandexSpeechVoice,
-} from './types';
+} from './yandex.enum';
 
 export interface YandexSpeechData {
   fileName: string;

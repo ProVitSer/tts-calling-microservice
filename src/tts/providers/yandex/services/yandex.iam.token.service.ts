@@ -5,7 +5,7 @@ import { writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 
 @Injectable()
-export class YandexIAMToken implements OnModuleInit {
+export class YandexIAMTokenService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
@@ -34,7 +34,7 @@ export class YandexIAMToken implements OnModuleInit {
   public async getIAMToken(): Promise<string> {
     try {
       const token = JSON.parse(
-        (await readFile(`${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`)).toString(),
+        (await readFile(`${join(__dirname, '../..', this.configService.get('yandex.tokenFolder'))}/token.json`)).toString(),
       );
       return token.iamToken;
     } catch (e) {
@@ -45,7 +45,7 @@ export class YandexIAMToken implements OnModuleInit {
   private async saveToken(token: string): Promise<void> {
     try {
       await writeFile(
-        `${join(__dirname, '..', this.configService.get('yandex.tokenFolder'))}/token.json`,
+        `${join(__dirname, '../..', this.configService.get('yandex.tokenFolder'))}/token.json`,
         JSON.stringify({ iamToken: token }),
       );
     } catch (e) {

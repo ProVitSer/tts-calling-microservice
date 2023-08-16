@@ -1,5 +1,4 @@
-import { BadRequestException, HttpException, Injectable, ValidationError } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { HttpException, Injectable, ValidationError } from '@nestjs/common';
 import * as uuid from 'uuid';
 
 @Injectable()
@@ -35,5 +34,14 @@ export class UtilsService {
 
   public static isHttpException(obj: any): boolean {
     return obj instanceof HttpException;
+  }
+
+  public static base64Encode(string: string): string {
+    const encoded = Buffer.from(string).toString('base64');
+    return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  public static base64Decode(base64: string) {
+    return Buffer.from(base64, 'base64');
   }
 }

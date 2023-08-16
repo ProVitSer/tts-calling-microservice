@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, Post, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import { FileUtilsService } from '@app/utils/files-utils';
+import { FileUtilsService } from '@app/utils/files.utils';
 import { TTSDTO } from '../dto/tts.dto';
 import { TTSService } from '../services/tts.service';
 import { ApiTags, ApiParam, ApiBody, ApiOperation, ApiOkResponse, ApiResponse, ApiNotFoundResponse } from '@nestjs/swagger';
-import { TTSFile } from '../interfaces/tts.interface';
-import { ParseObjectIdPipe } from '@app/utils/pipe';
+import { ListVoicesData, TTSFile } from '../interfaces/tts.interface';
+import { ParseObjectIdPipe } from '@app/pipe/parse-objectId.pipe';
+import { TTSVoicesDTO } from '../dto/tts.voices.dto';
 
 @ApiTags('tts')
 @Controller('tts')
@@ -23,8 +24,10 @@ export class TTSController {
       'application/octet-stream': {},
     },
   })
-  async convert(@Body() { ttsType, tts }: TTSDTO, @Res() res: Response): Promise<any> {
-    const ttsFile = await this.ttsService.textToSpech({ ttsType, text: tts });
+  async convert(@Body() data: TTSDTO, @Res() res: Response): Promise<any> {
+    const { tts, ...convertData } = data;
+
+    const ttsFile = await this.ttsService.textToSpech({ ...convertData, text: tts });
     const file = await FileUtilsService.readStreamVoiceFile(FileUtilsService.getFullFilePath(ttsFile));
     file.pipe(res);
   }
@@ -37,8 +40,9 @@ export class TTSController {
     description: 'Уникальный идентификатор голосового файла в системе',
     type: TTSFile,
   })
-  async file(@Body() { ttsType, tts }: TTSDTO): Promise<TTSFile> {
-    return this.ttsService.convertTextToVoiceFile({ ttsType, text: tts });
+  async file(@Body() data: TTSDTO): Promise<TTSFile> {
+    const { tts, ...convertData } = data;
+    return this.ttsService.convertTextToVoiceFile({ ...convertData, text: tts });
   }
 
   @Get('file/:fileId')
@@ -64,5 +68,18 @@ export class TTSController {
     const ttsFile = await this.ttsService.getTTSVoiceFile(fileId);
     const file = await FileUtilsService.readStreamVoiceFile(FileUtilsService.getFullFilePath(ttsFile));
     file.pipe(res);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('voices')
+  @ApiBody({ type: TTSVoicesDTO })
+  @ApiOperation({ summary: 'Получение списка возможных голосов и эмоций' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Уникальный идентификатор голосового файла в системе',
+    type: [ListVoicesData],
+  })
+  async getVoices(@Body() { ttsType }: TTSVoicesDTO): Promise<ListVoicesData[]> {
+    return await this.ttsService.getVoicesList(ttsType);
   }
 }

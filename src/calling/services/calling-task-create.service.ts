@@ -3,7 +3,7 @@ import { ApplicationId } from '@app/application/interfaces/application.interface
 import { Injectable } from '@nestjs/common';
 import { CallingTTSTaskDTO } from '../dto/calling-tts-task.dto';
 import { TTSProviderType } from '@app/tts/interfaces/tts.enum';
-import { TTSVoiceFileData } from '@app/tts/interfaces/tts.interface';
+import { TTSConvertVoiceFileData } from '@app/tts/interfaces/tts.interface';
 import { TTSService } from '@app/tts/services/tts.service';
 import { Files } from '@app/files/files.schema';
 import { ScpService } from '@app/scp/scp.service';
@@ -28,7 +28,7 @@ export class CallingTaskCreateService {
   public async setCallingTaskWithTTS(data: CallingTTSTaskDTO): Promise<ApplicationId> {
     try {
       const { applicationId } = ApplicationService.getApplicationId(true);
-      const ttsData = await this.getTTSVoiceFile(data.ttsType, data.tts);
+      const ttsData = await this.getTTSVoiceFile(data);
       const fileInfo = await this.saveAndUploadVoiceFile({ ...data, applicationId }, ttsData);
       await this.addCallingTask({ applicationId, fileId: fileInfo._id, numbers: data.phones });
       await this.callingTaskPubService.publishCallingTaskToQueue({ ...data, applicationId }, fileInfo);
@@ -41,11 +41,13 @@ export class CallingTaskCreateService {
     }
   }
 
-  private async getTTSVoiceFile(ttsType: TTSProviderType, text: string): Promise<TTSVoiceFileData> {
+  private async getTTSVoiceFile(data: CallingTTSTaskDTO): Promise<TTSConvertVoiceFileData> {
     try {
       return await this.ttsService.textToSpech({
-        ttsType,
-        text,
+        ttsType: data.ttsType,
+        text: data.tts,
+        voice: data.voice,
+        emotion: data.emotion,
       });
     } catch (e) {
       throw e;
@@ -54,7 +56,7 @@ export class CallingTaskCreateService {
 
   private async saveAndUploadVoiceFile(
     data: CallingTTSTaskDTO & { applicationId: string },
-    ttsData: TTSVoiceFileData,
+    ttsData: TTSConvertVoiceFileData,
   ): Promise<Files & { _id: string }> {
     const fileInfo = await this.saveVoiceFileData(ttsData, data.applicationId, data.tts);
     await this.scp.uploadFileToServer({
@@ -65,7 +67,7 @@ export class CallingTaskCreateService {
     return fileInfo;
   }
 
-  private async saveVoiceFileData(ttsData: TTSVoiceFileData, applicationId: string, text: string): Promise<Files & { _id: string }> {
+  private async saveVoiceFileData(ttsData: TTSConvertVoiceFileData, applicationId: string, text: string): Promise<Files & { _id: string }> {
     return await this.filesService.saveFile({ ...ttsData, text, applicationId });
   }
 

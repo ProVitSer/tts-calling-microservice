@@ -4,9 +4,6 @@ import { LoggerService } from '@app/logger/logger.service';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  private requestErrorMessage = null;
-  private readonly requestStart = Date.now();
-
   constructor(private readonly logger: LoggerService) {}
   use(request: Request, response: Response, next: NextFunction) {
     response.on('finish', () => {
@@ -29,7 +26,7 @@ export class LoggerMiddleware implements NestMiddleware {
         return this.logger.warn(message);
       }
 
-      return this.logger.log(message);
+      return this.logger.info(message);
     });
 
     next();
