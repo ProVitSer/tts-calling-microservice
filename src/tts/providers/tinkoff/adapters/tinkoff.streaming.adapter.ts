@@ -9,7 +9,7 @@ export class TinkoffStreamingTTSDataAdapter {
       input: { text: data.text },
       audioConfig: {
         audioEncoding: TinkoffSpeechFormat.linear,
-        sampleRateHertz: TinkoffSpeechSampleRateHertz.FortyEight,
+        sampleRateHertz: TinkoffSpeechSampleRateHertz.Eight,
       },
       voice: {
         name: data?.voice ? (`${data.voice}:${data.emotion}` as TinkoffSpeechVoice) : TinkoffSpeechVoice.alyonaNeutral,

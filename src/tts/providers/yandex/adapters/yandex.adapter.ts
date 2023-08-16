@@ -21,7 +21,7 @@ export class YandexSpeechDataAdapter {
     this.text = data.text;
     this.voice = (data.voice as YandexSpeechVoice) || YandexSpeechVoice.alena;
     this.format = YandexSpeechFormat.lpcm;
-    this.sampleRateHertz = YandexSpeechSampleRateHertz.FortyEight;
+    this.sampleRateHertz = YandexSpeechSampleRateHertz.Eight;
     this.lang = YandexSpeechLang.RU;
     this.emotion = (data.emotion as YandexSpeechEmotion) || YandexSpeechEmotion.good;
     this.speed = YandexSpeechSpeed.middle;
