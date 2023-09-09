@@ -28,11 +28,11 @@ async function bootstrap() {
       },
     }),
   );
-  const swaggerConfig = new DocumentBuilder().setTitle('API tts calling').setVersion('1.0.2').build();
+  const swaggerConfig = new DocumentBuilder().setTitle('API tts calling').setVersion('2.2.3').build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/tts-calling', app, document);
   app.useStaticAssets(join(__dirname, '..', 'public'));
-  await app.listen(config.get('appPort'));
+  await app.listen(config.get('appPort'), 'localhost');
 }
 bootstrap();
