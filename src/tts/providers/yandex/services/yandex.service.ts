@@ -43,7 +43,6 @@ export class YandexService {
   }
 
   private async writeStreamVoiceFile(response: AxiosResponse, fileName: string): Promise<boolean> {
-    console.log(response);
     const writer = await FileUtilsService.writeStreamVoiceFile(fileName, this.voicePath);
     return new Promise((resolve, reject) => {
       response.data.pipe(writer);

@@ -402,3 +402,4 @@ config.json
 public/voice/*
 token.json
 api-log/*
+src/cert/*

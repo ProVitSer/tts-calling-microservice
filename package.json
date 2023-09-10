@@ -36,6 +36,7 @@
     "class-validator": "^0.14.0",
     "crypto-js": "^4.1.1",
     "date-fns": "^2.30.0",
+    "https": "^1.0.0",
     "mongoose": "^7.4.2",
     "nest-winston": "^1.9.3",
     "node-scp": "^0.0.22",
