@@ -28,7 +28,7 @@ async function bootstrap() {
       },
     }),
   );
-  const swaggerConfig = new DocumentBuilder().setTitle('API tts calling').setVersion('2.2.3').build();
+  const swaggerConfig = new DocumentBuilder().setTitle('API tts calling').setVersion('1.0.2').build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/tts-calling', app, document);
